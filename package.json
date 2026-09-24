@@ -1,0 +1,35 @@
+{
+  "name": "flakeguard",
+  "version": "0.1.0",
+  "description": "Track real per-test pass/fail history across CI runs, compute real flake rates, and quarantine statistically flaky tests without hiding them.",
+  "type": "module",
+  "license": "MIT",
+  "author": "FlakeGuard contributors",
+  "bin": {
+    "flakeguard": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "commander": "^15.0.0",
+    "fast-xml-parser": "^5.11.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  }
+}

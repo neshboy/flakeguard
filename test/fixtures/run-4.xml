@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="math.spec.ts" tests="4" failures="2" skipped="0">
+    <testcase classname="math.spec.ts" name="adds two numbers" time="0.003"/>
+    <testcase classname="math.spec.ts" name="connects to database" time="0.505">
+      <failure message="Error: connection refused">Error: connection refused
+    at Database.connect (db.ts:42)</failure>
+    </testcase>
+    <testcase classname="math.spec.ts" name="handles concurrent requests" time="0.029">
+      <failure message="AssertionError: expected 200 to equal 500">AssertionError: expected 200 to equal 500
+    at handleConcurrent (server.ts:88)</failure>
+    </testcase>
+    <testcase classname="math.spec.ts" name="renders skeleton loader" time="0.009"/>
+  </testsuite>
+</testsuites>

@@ -7,6 +7,14 @@ import { DEFAULT_WINDOW } from "./stats/flake.js";
 
 const program = new Command();
 
+function parseWindowOption(value: string): number {
+  const parsed = parseInt(value, 10);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    throw new Error(`--window must be an integer >= 1 (got "${value}")`);
+  }
+  return parsed;
+}
+
 program
   .name("flakeguard")
   .description(
@@ -28,9 +36,7 @@ program
 program
   .command("report")
   .description("Show every tracked test's pass/fail/flake history as a table.")
-  .option("--window <n>", `number of most recent runs to consider per test (default: ${DEFAULT_WINDOW})`, (v) =>
-    parseInt(v, 10)
-  )
+  .option("--window <n>", `number of most recent runs to consider per test (default: ${DEFAULT_WINDOW})`, parseWindowOption)
   .option("--store <path>", "path to the FlakeGuard history JSON file (default: .flakeguard/history.json)")
   .action(async (opts: { window?: number; store?: string }) => {
     await reportCommand({ window: opts.window, storePath: opts.store });
@@ -42,9 +48,7 @@ program
   .requiredOption("--threshold <rate>", "flake-rate threshold between 0 and 1, e.g. 0.1 for 10%", (v) =>
     parseFloat(v)
   )
-  .option("--window <n>", `number of most recent runs to consider per test (default: ${DEFAULT_WINDOW})`, (v) =>
-    parseInt(v, 10)
-  )
+  .option("--window <n>", `number of most recent runs to consider per test (default: ${DEFAULT_WINDOW})`, parseWindowOption)
   .option("--store <path>", "path to the FlakeGuard history JSON file (default: .flakeguard/history.json)")
   .option("--out-dir <dir>", "directory to write quarantine.json/quarantine.txt into (default: .flakeguard/)")
   .action(async (opts: { threshold: number; window?: number; store?: string; outDir?: string }) => {

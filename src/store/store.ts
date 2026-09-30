@@ -1,10 +1,17 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import type { HistoryStore, ParsedReport, TestRecord } from "../types.js";
 
 export const DEFAULT_STORE_DIR = ".flakeguard";
 export const DEFAULT_STORE_FILE = "history.json";
+
+/**
+ * Maximum number of observations retained per test. Stats only ever look at the most
+ * recent `--window` (default 20) entries, so this cap is generously above any realistic
+ * window while keeping the committed history file/diff size bounded for long-lived projects.
+ */
+export const MAX_OBSERVATIONS_PER_TEST = 500;
 
 export function defaultStorePath(cwd: string = process.cwd()): string {
   return path.join(cwd, DEFAULT_STORE_DIR, DEFAULT_STORE_FILE);
@@ -35,7 +42,9 @@ export async function loadStore(storePath: string): Promise<HistoryStore> {
 
 export async function saveStore(storePath: string, store: HistoryStore): Promise<void> {
   await mkdir(path.dirname(storePath), { recursive: true });
-  await writeFile(storePath, JSON.stringify(store, null, 2) + "\n", "utf-8");
+  const tmpPath = `${storePath}.tmp-${process.pid}`;
+  await writeFile(tmpPath, JSON.stringify(store, null, 2) + "\n", "utf-8");
+  await rename(tmpPath, storePath);
 }
 
 export interface IngestOptions {
@@ -91,6 +100,10 @@ export function ingestReport(store: HistoryStore, parsed: ParsedReport, options:
       outcome: testCase.outcome,
       durationSeconds: testCase.durationSeconds,
     });
+
+    if (record.observations.length > MAX_OBSERVATIONS_PER_TEST) {
+      record.observations = record.observations.slice(record.observations.length - MAX_OBSERVATIONS_PER_TEST);
+    }
   }
 
   return {

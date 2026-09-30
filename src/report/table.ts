@@ -15,16 +15,11 @@ function statusFor(stats: FlakeStats): string {
   return "stable";
 }
 
-export interface RenderReportOptions {
-  /** Flake rate strictly above this value is highlighted as quarantine-worthy. */
-  threshold?: number;
-}
-
 /**
  * Render a compact terminal table of every tracked test's pass/fail/flake history.
  * Deterministic column widths, no external table-drawing dependency.
  */
-export function renderReportTable(rows: FlakeStats[], options: RenderReportOptions = {}): string {
+export function renderReportTable(rows: FlakeStats[]): string {
   if (rows.length === 0) {
     return "No tests tracked yet. Run `flakeguard ingest <report.xml> --run-id <id>` first.";
   }
